@@ -14,6 +14,13 @@ namespace QuoteOfTheDay.Data.Repositories
 			
 		}
 
+		public override IEnumerable<Topic> All()
+		{
+			return base.All()
+					.OrderByDescending(t => t.ViewsCount)
+					.Take(100);
+		}
+
 		public override Topic Get(int id)
 		{
 			return context.Topics

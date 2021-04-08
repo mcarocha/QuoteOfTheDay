@@ -33,12 +33,12 @@ namespace QuoteOfTheDay.Data
               .FirstOrDefaultAsync();
         }
 
-        public async Task<Author> GetAuthorQuotes(string nomeAutor)
+        public async Task<Author> GetAuthorQuotes(string authorName)
         {
             return await _context.Authors
               .Include(a => a.Quotes)
               //.ThenInclude(f => f.Descricao)
-              .Where(a => a.Slug.ToLower() == nomeAutor)
+              .Where(a => a.Slug.ToLower() == authorName)
               .FirstOrDefaultAsync();
         }
         

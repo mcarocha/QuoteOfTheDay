@@ -37,6 +37,7 @@ namespace QuoteOfTheDay.API
 			);
 
 			services.AddScoped<IQuoteOfTheDayRepository, QuoteOfTheDayRepository>();
+			services.AddScoped<IRepository<Quote>, QuoteRepository>();
 			services.AddScoped<IRepository<Author>, AuthorRepository>();
 			services.AddScoped<IRepository<Topic>, TopicRepository>();
 

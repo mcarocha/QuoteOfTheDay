@@ -8,11 +8,11 @@ namespace QuoteOfTheDay.Model
 	{
 		public TopicModel()
 		{
-			TopicQuote = new List<TopicQuoteModel>();
+			Quotes = new List<QuoteModel>();
 		}
 		public int Id { get; set; }
-		public string TopicDescription { get; set; }
+		public string Description { get; set; }
 		public int ViewsCount { get; set; }
-		public List<TopicQuoteModel> TopicQuote { get; set; }
+		public List<QuoteModel> Quotes { get; set; }
 	}
 }

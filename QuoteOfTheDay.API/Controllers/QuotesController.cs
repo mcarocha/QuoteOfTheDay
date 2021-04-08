@@ -9,6 +9,7 @@ using QuoteOfTheDay.Data;
 using QuoteOfTheDay.Model;
 using Microsoft.Extensions.Logging;
 using AutoMapper;
+using QuoteOfTheDay.Data.Repositories;
 
 namespace QuoteOfTheDay.API.Controllers
 {
@@ -17,11 +18,11 @@ namespace QuoteOfTheDay.API.Controllers
     public class QuotesController : ControllerBase
     {
         private readonly QuoteOfTheDayContext _context;
-        private IQuoteOfTheDayRepository _repo;
+        private IRepository<Quote> _repo;
         private ILogger<QuotesController> _logger;
         private readonly IMapper _mapper;
 
-        public QuotesController(IQuoteOfTheDayRepository repo,
+        public QuotesController(IRepository<Quote> repo,
           ILogger<QuotesController> logger, QuoteOfTheDayContext context,
           IMapper mapper)
         {
@@ -32,11 +33,11 @@ namespace QuoteOfTheDay.API.Controllers
         }
 
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Quote>>> GetFrases()
+        public ActionResult<IEnumerable<Quote>> GetQuotes()
         {
             try
             {
-                return Ok(_mapper.Map<IEnumerable<QuoteModel>>(await _repo.GetQuotes()));
+                return Ok(_mapper.Map<IEnumerable<QuoteModel>>(_repo.All()));
             }
             catch (Exception ex)
             {
@@ -46,11 +47,26 @@ namespace QuoteOfTheDay.API.Controllers
             return BadRequest("Não foi possível listar as frases");
         }
 
+        [HttpGet("{topic}")]
+        public ActionResult<List<Quote>> GetQuotes(string topic)
+        {
+            try
+            {
+                return Ok(_mapper.Map<IEnumerable<QuoteModel>>(_repo.Find(q => q.TopicQuote.Select(tp => tp.Topic.Description).Contains(topic))));
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError("Não foi possível encontrar o autor: {0}", ex);
+            }
+
+            return BadRequest("Não foi possível encontrar o autor");
+        }
+
         // PUT: api/Frases/5
         // To protect from overposting attacks, enable the specific properties you want to bind to, for
         // more details, see https://go.microsoft.com/fwlink/?linkid=2123754.
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutFrase(int id, Quote frase)
+        public async Task<IActionResult> PutQuotes(int id, Quote frase)
         {
             if (id != frase.Id)
             {
@@ -65,7 +81,7 @@ namespace QuoteOfTheDay.API.Controllers
             }
             catch (DbUpdateConcurrencyException)
             {
-                if (!FraseExists(id))
+                if (!QuoteExist(id))
                 {
                     return NotFound();
                 }
@@ -82,7 +98,7 @@ namespace QuoteOfTheDay.API.Controllers
         // To protect from overposting attacks, enable the specific properties you want to bind to, for
         // more details, see https://go.microsoft.com/fwlink/?linkid=2123754.
         [HttpPost]
-        public async Task<ActionResult<Quote>> PostFrase(Quote frase)
+        public async Task<ActionResult<Quote>> PostQuotes(Quote frase)
         {
             _context.Quotes.Add(frase);
             await _context.SaveChangesAsync();
@@ -92,7 +108,7 @@ namespace QuoteOfTheDay.API.Controllers
 
         // DELETE: api/Frases/5
         [HttpDelete("{id}")]
-        public async Task<ActionResult<Quote>> DeleteFrase(int id)
+        public async Task<ActionResult<Quote>> DeleteQuote(int id)
         {
             var frase = await _context.Quotes.FindAsync(id);
             if (frase == null)
@@ -106,7 +122,7 @@ namespace QuoteOfTheDay.API.Controllers
             return frase;
         }
 
-        private bool FraseExists(int id)
+        private bool QuoteExist(int id)
         {
             return _context.Quotes.Any(e => e.Id == id);
         }
